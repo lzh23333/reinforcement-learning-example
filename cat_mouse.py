@@ -26,15 +26,23 @@ class CatAgent(object):
         state (int): indicate state agent face.
     """
 
-    def __init__(self, Q, state,):
+    def __init__(self, Q, state, eps=0.2):
         self.Q = Q
         self.state = state
+        self.eps = eps
 
     def recv(self, state):
         self.state = state
 
     def action(self):
         return np.argmax(self.Q[self.state])
+    
+    def eps_greedy_action(self):
+        best_action = self.action()
+        if random.random() > self.eps:
+            return best_action
+        else:
+            return random.choice([x for x in range(4) if x != best_action])
 
 
 class Mouse(object):
@@ -49,13 +57,17 @@ class Mouse(object):
         self.pos = pos
         self.board = board
 
-    def move(self):
+    def move(self, method="random"):
         """random move.
+
+        Args:
+            method (str): support "random", "stay".
         """
-        action = random.randint(0, 3)
-        pos = move_on_board(self.pos, action, self.board.shape)
-        if self.board[pos] != Label.block:
-            self.pos = pos
+        if method == "random":
+            action = random.randint(0, 3)
+            pos = move_on_board(self.pos, action, self.board.shape)
+            if self.board[pos] != Label.block.value:
+                self.pos = pos
         return self.pos
 
 
@@ -68,10 +80,11 @@ class BoardEnv(object):
         recv: recieve action and return updated state and reward.
     """
 
-    def __init__(self, state, board):
+    def __init__(self, state, board, mouse_pattern):
         self.state = state
         self.board = board
-        self.mouse = Mouse(index2pos(state[1]), self.board.shape)
+        self.mouse = Mouse(index2pos(state[1], self.board.shape), self.board)
+        self.mouse_move = mouse_pattern
 
     def recv(self, action):
         """
@@ -80,21 +93,25 @@ class BoardEnv(object):
         """
         cat_pos = index2pos(self.state[0], self.board.shape)
         cat_pos = move_on_board(cat_pos, action, self.board.shape)
-        mouse_pos = self.mouse.move()
+        mouse_pos = self.mouse.move(self.mouse_move)
         self.state = (
             pos2index(cat_pos, self.board.shape),
             pos2index(mouse_pos, self.board.shape)
         )
+        return self.state, self.reward()
 
     def is_terminate(self):
         catch = self.state[0] == self.state[1]
-        block = self.board[pos2index[self.state[0]]] == Label.block
+        block = (
+            self.board[index2pos(self.state[0], self.board.shape)] == Label.block.value
+        )
         return catch or block
 
     def reward(self):
         if self.state[0] == self.state[1]:
             return 10
-        elif self.board[pos2index[self.state[0]]] == Label.block:
+        elif self.board[index2pos(self.state[0], self.board.shape)] == Label.block.value:
             return -10
         else:
             return -1
+

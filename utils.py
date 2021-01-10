@@ -45,7 +45,7 @@ def pos2index(pos, board_size):
 
 
 def index2pos(index, board_size):
-    assert index >= 0 and index < board_size[0] * board_size[1] - 1,\
+    assert index >= 0 and index < board_size[0] * board_size[1],\
         "index out of range"
     return (index // board_size[0], index % board_size[0])
 
@@ -70,5 +70,5 @@ def move_on_board(pos, action, board_size):
     elif Move(action) == Move.left:
         new_pos[1] = max(0, new_pos[1] - 1)
     else:
-        new_pos[1] = min(board_size[1] - 1, new_pos[1] - 1)
-    return new_pos
+        new_pos[1] = min(board_size[1] - 1, new_pos[1] + 1)
+    return tuple(new_pos)
