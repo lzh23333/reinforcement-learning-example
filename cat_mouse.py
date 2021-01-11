@@ -14,7 +14,8 @@ from utils import (
     move_on_board,
     index2pos,
     pos2index,
-    Label
+    Label,
+    opposite
 )
 
 
@@ -34,9 +35,22 @@ class CatAgent(object):
     def recv(self, state):
         self.state = state
 
-    def action(self):
-        return np.argmax(self.Q[self.state])
-    
+    def action(self, forbid=None):
+        """use Q to find best action.
+
+        Args:
+            forbid (int): if specified, [0-3], agent will not take the forbid action.
+        Returns:
+            action (int).
+        """
+        if forbid is None:
+            return np.argmax(self.Q[self.state])
+        else:
+            selects = [i for i in range(4) if i != forbid]
+            a = np.argmax(self.Q[self.state][selects])
+            a = selects[int(a)]
+            return a
+
     def eps_greedy_action(self):
         best_action = self.action()
         if random.random() > self.eps:
@@ -103,7 +117,8 @@ class BoardEnv(object):
     def is_terminate(self):
         catch = self.state[0] == self.state[1]
         block = (
-            self.board[index2pos(self.state[0], self.board.shape)] == Label.block.value
+            self.board[index2pos(
+                self.state[0], self.board.shape)] == Label.block.value
         )
         return catch or block
 
@@ -114,4 +129,3 @@ class BoardEnv(object):
             return -10
         else:
             return -1
-

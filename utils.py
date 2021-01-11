@@ -19,7 +19,20 @@ class Move(Enum):
     left = 3
 
 
+def opposite(action):
+    if action is None:
+        return None
+    d = {
+        Move.up.value: Move.down.value,
+        Move.down.value: Move.up.value,
+        Move.right.value: Move.left.value,
+        Move.left.value: Move.right.value,
+    }
+    return d[int(action)]
+
 # define cat, block, empty, mouse
+
+
 class Label(Enum):
     empty = 0
     block = 1

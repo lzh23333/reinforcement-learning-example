@@ -22,13 +22,14 @@ class BoardGUI(object):
         self.state_history = state_history
         self.cat = index2pos(init_state[0], board.shape)
         self.mouse = index2pos(init_state[1], board.shape)
-        
+
         self.root = Tk()
         self.root.title("Cat Catch Mouse")
-        
+
         square = 800 // max(board.shape)
         self.square = square
-        self.canvas = Canvas(self.root, width=800, height=800, background="white")
+        self.canvas = Canvas(self.root, width=800,
+                             height=800, background="white")
         self.canvas.pack(side="top", fill="both", anchor="c", expand=True)
         self.ms = ms
         colors = ["white", "gray", "red", "blue"]
@@ -40,13 +41,15 @@ class BoardGUI(object):
                                              fill=colors[int(board[i, j])],
                                              )
         image_size = (square, square)
-        self.cat_img = Image.open("./imgs/cat.jpeg").resize(image_size, Image.ANTIALIAS)
+        self.cat_img = Image.open(
+            "./imgs/cat.jpeg").resize(image_size, Image.ANTIALIAS)
         self.cat_img = ImageTk.PhotoImage(self.cat_img)
         self.cat_canvas = self.canvas.create_image(
             self.cat[0] * square, self.cat[1] * square, image=self.cat_img,
             anchor=NW
         )
-        self.mouse_img = Image.open("./imgs/mouse.jpeg").resize(image_size, Image.ANTIALIAS)
+        self.mouse_img = Image.open(
+            "./imgs/mouse.jpeg").resize(image_size, Image.ANTIALIAS)
         self.mouse_img = ImageTk.PhotoImage(self.mouse_img)
         self.mouse_canvas = self.canvas.create_image(
             self.mouse[0] * square, self.mouse[1] * square, image=self.mouse_img,
@@ -58,12 +61,10 @@ class BoardGUI(object):
         self.root.after(0, self.run)
         self.root.mainloop()
 
-    
     def run(self):
         for i in range(len(self.state_history)):
             self.display(i)
             time.sleep(self.ms)
-
 
     def display(self, i):
         # display one timestamp
@@ -73,7 +74,7 @@ class BoardGUI(object):
         self.canvas.delete(self.cat_canvas)
         self.canvas.delete(self.mouse_canvas)
         if state[0] != state[1]:
-            
+
             self.cat_canvas = self.canvas.create_image(
                 cat_pos[0] * self.square, cat_pos[1] * self.square,
                 image=self.cat_img,
@@ -92,4 +93,3 @@ class BoardGUI(object):
                 anchor=NW
             )
         self.canvas.update()
-

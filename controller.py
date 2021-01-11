@@ -12,7 +12,7 @@ import numpy as np
 import random
 from tqdm import tqdm
 from cat_mouse import CatAgent, BoardEnv
-from utils import Label, index2pos, pos2index
+from utils import Label, index2pos, pos2index, opposite
 
 
 class Controller(object):
@@ -25,7 +25,7 @@ class Controller(object):
                  board=None,
                  eps=0.2,
                  mouse_move="stay"
-        ):
+                 ):
         """
         Args:
             board_size (tuple (int, int)).
@@ -45,7 +45,7 @@ class Controller(object):
             blocks = [index2pos(x, board.shape) for x in blocks[:block_num]]
         for x in blocks:
             self.board[x] = Label.block.value
-        # init state    
+        # init state
         self.init_state = init_state
         # init Q table
         self.Q = np.random.randn(total, total, 4) * 1e-3
@@ -55,8 +55,7 @@ class Controller(object):
         self.Q[block_index, :] = 0
 
         self.eps = eps
-        self.mouse_move = mouse_move   
-
+        self.mouse_move = mouse_move
 
     def q_learning(self, lr=0.01, eta=0.7, max_iter=500):
         """perform q learning on agent.
@@ -79,16 +78,16 @@ class Controller(object):
                 cat.recv(s)
                 reward += r
                 cat.Q[s0][action] = (1 - lr) * cat.Q[s0][action] +\
-                                    lr * (r + eta * cat.Q[s][cat.action()])
+                    lr * (r + eta * cat.Q[s][cat.action()])
                 loop += 1
             # update
             self.Q = cat.Q
             rewards.append(reward)
             print(f"EPOCH: {e}, LOOP: {loop}, REWARD: {reward}")
-    
+
         return rewards
-    
-    def epsiode(self):
+
+    def epsiode(self, max_try=10000):
         """perform search progress.
 
         Returns:
@@ -97,9 +96,17 @@ class Controller(object):
         cat = CatAgent(self.Q, self.init_state, self.eps)
         env = BoardEnv(self.init_state, self.board, self.mouse_move)
         state_history = [env.state]
-        while not env.is_terminate():
-            s, _ = env.recv(cat.action())
-            cat.recv(s)
-            state_history.append(s)
-            print(s)
+        last_action = None
+        tries = 0
+        
+        with tqdm(total=max_try, desc="searching") as pbar:
+            while not env.is_terminate():
+                action = cat.action(forbid=opposite(last_action))
+                s, _ = env.recv(action)
+                last_action = action
+                cat.recv(s)
+                state_history.append(s)
+                tries += 1
+                pbar.update(1)
+
         return state_history
