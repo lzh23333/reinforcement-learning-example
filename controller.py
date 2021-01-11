@@ -12,7 +12,7 @@ import numpy as np
 import random
 from tqdm import tqdm
 from cat_mouse import CatAgent, BoardEnv
-from utils import Label, index2pos, pos2index, opposite
+from utils import Label, index2pos, pos2index
 
 
 class Controller(object):
@@ -96,14 +96,12 @@ class Controller(object):
         cat = CatAgent(self.Q, self.init_state, self.eps)
         env = BoardEnv(self.init_state, self.board, self.mouse_move)
         state_history = [env.state]
-        last_action = None
         tries = 0
-        
+
         with tqdm(total=max_try, desc="searching") as pbar:
             while not env.is_terminate():
-                action = cat.action(forbid=opposite(last_action))
+                action = cat.action()
                 s, _ = env.recv(action)
-                last_action = action
                 cat.recv(s)
                 state_history.append(s)
                 tries += 1

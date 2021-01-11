@@ -43,13 +43,7 @@ class CatAgent(object):
         Returns:
             action (int).
         """
-        if forbid is None:
-            return np.argmax(self.Q[self.state])
-        else:
-            selects = [i for i in range(4) if i != forbid]
-            a = np.argmax(self.Q[self.state][selects])
-            a = selects[int(a)]
-            return a
+        return np.argmax(self.Q[self.state])
 
     def eps_greedy_action(self):
         best_action = self.action()
