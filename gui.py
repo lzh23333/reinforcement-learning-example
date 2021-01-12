@@ -26,10 +26,11 @@ class BoardGUI(object):
         self.root = Tk()
         self.root.title("Cat Catch Mouse")
 
+        # plot board
         square = 800 // max(board.shape)
         self.square = square
         self.canvas = Canvas(self.root, width=800,
-                             height=800, background="white")
+                             height=820, background="white")
         self.canvas.pack(side="top", fill="both", anchor="c", expand=True)
         self.ms = ms
         colors = ["white", "gray", "red", "blue"]
@@ -41,6 +42,8 @@ class BoardGUI(object):
                                              fill=colors[int(board[i, j])],
                                              )
         image_size = (square, square)
+
+        # cat mouse images
         self.cat_img = Image.open(
             "./imgs/cat.jpeg").resize(image_size, Image.ANTIALIAS)
         self.cat_img = ImageTk.PhotoImage(self.cat_img)
@@ -58,7 +61,14 @@ class BoardGUI(object):
         self.catch = ImageTk.PhotoImage(
             Image.open("./imgs/catch.jpg").resize(image_size, Image.ANTIALIAS)
         )
-        self.root.after(0, self.run)
+
+        # add a button to control animation
+        self.button = Button(self.root, text="start", command=self.run)
+        self.button.pack(side=BOTTOM)
+
+        # 
+        # time.sleep(1)
+        # self.root.after(0, self.run)
         self.root.mainloop()
 
     def run(self):

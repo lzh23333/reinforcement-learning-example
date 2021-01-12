@@ -15,7 +15,7 @@ from utils import (
     index2pos,
     pos2index,
     Label,
-    opposite
+    manhattan
 )
 
 
@@ -65,17 +65,23 @@ class Mouse(object):
         self.pos = pos
         self.board = board
 
-    def move(self, method="random"):
+    def move(self, cat_pos=None, method="random"):
         """random move.
 
         Args:
-            method (str): support "random", "stay".
+            method (str): support "random", "stay", "away".
         """
         if method == "random":
             action = random.randint(0, 3)
             pos = move_on_board(self.pos, action, self.board.shape)
             if self.board[pos] != Label.block.value:
                 self.pos = pos
+        elif method == "away" and random.random() > 0.5:
+            next_pos = [move_on_board(self.pos, a, self.board.shape) for a in range(4)]
+            next_pos = [x for x in next_pos if self.board[x] != Label.block.value]
+            scores = [manhattan(p, cat_pos) for p in next_pos]
+            if scores != []:
+                self.pos = next_pos[np.argmax(scores)]
         return self.pos
 
 
@@ -101,7 +107,10 @@ class BoardEnv(object):
         """
         cat_pos = index2pos(self.state[0], self.board.shape)
         cat_pos = move_on_board(cat_pos, action, self.board.shape)
-        mouse_pos = self.mouse.move(self.mouse_move)
+        mouse_pos = self.mouse.move(
+            cat_pos=cat_pos,
+            method=self.mouse_move
+        )
         self.state = (
             pos2index(cat_pos, self.board.shape),
             pos2index(mouse_pos, self.board.shape)
@@ -119,7 +128,8 @@ class BoardEnv(object):
     def reward(self):
         if self.state[0] == self.state[1]:
             return 10
-        elif self.board[index2pos(self.state[0], self.board.shape)] == Label.block.value:
+        elif (self.board[index2pos(self.state[0], self.board.shape)]
+              == Label.block.value):
             return -10
         else:
             return -1

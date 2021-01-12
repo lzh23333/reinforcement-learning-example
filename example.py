@@ -11,7 +11,7 @@ def parse_args():
     parser.add_argument("--eps", type=float, default=0.2, help="eps-greedy")
     parser.add_argument("--eta", type=float, default=0.5)
     parser.add_argument("--max_iter", type=int, default=500)
-    parser.add_argument("--mouse_pattern", type=str, choices=["stay", "random"])
+    parser.add_argument("--mouse_pattern", type=str, choices=["stay", "random", "away"])
     parser.add_argument("--ms", type=float, help="animation interval", default=0.5)
     return parser.parse_args()
 
@@ -45,6 +45,7 @@ def main():
     state_history = c.epsiode()
     print(state_history)
 
+    
     # GUI
     BoardGUI(c.board, c.init_state, state_history, args.ms)
 
