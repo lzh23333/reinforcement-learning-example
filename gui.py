@@ -72,6 +72,8 @@ class BoardGUI(object):
         self.root.mainloop()
 
     def run(self):
+        if hasattr(self, "catch_canvas"):
+            self.canvas.delete(self.catch_canvas)
         for i in range(len(self.state_history)):
             self.display(i)
             time.sleep(self.ms)
@@ -96,7 +98,7 @@ class BoardGUI(object):
                 anchor=NW
             )
         else:
-            self.canvas.create_image(
+            self.catch_canvas = self.canvas.create_image(
                 cat_pos[0] * self.square,
                 cat_pos[1] * self.square,
                 image=self.catch,

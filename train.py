@@ -9,6 +9,7 @@
 @Desc    :   q learning and store Q, board.
 '''
 import pickle
+import numpy as np
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 
@@ -24,6 +25,7 @@ def parse_args():
     parser.add_argument("--eps", type=float, default=0.2, help="eps-greedy")
     parser.add_argument("--eta", type=float, default=0.7)
     parser.add_argument("--max_iter", type=int, default=500)
+    parser.add_argument("--reward", type=str, choices=["dist", "base"])
     parser.add_argument("--mouse_pattern", type=str,
                         choices=["stay", "random", "away"])
     parser.add_argument("--dst", type=str,
@@ -49,19 +51,25 @@ def main():
         init_state,
         block_num=blocks,
         eps=eps,
-        mouse_move=mouse_pattern
+        mouse_move=mouse_pattern,
+        reward=args.reward
     )
 
     # q learning
-    rewards = c.q_learning(lr=lr, eta=eta, max_iter=max_iter)
+    rewards = c.q_learning(lr=lr, eta=eta, max_iter=max_iter, print_msg=False)
 
     with open(args.dst, "wb") as f:
         pickle.dump(c, f)
 
     # plot reward-episode curve
+    rewards = np.array(rewards)
+    N = 1000
+    weight = np.hanning(N)
+    weight = weight / np.sum(weight)
+    rewards = np.convolve(weight, rewards)[N-1: -N+1]
     plt.figure(2)
-    plt.plot(range(max_iter), rewards, linewidth=1)
-    plt.xlim([0, max_iter])
+    plt.plot(range(len(rewards)), rewards, linewidth=1)
+    plt.xlim([0, len(rewards)])
     plt.xlabel("episode")
     plt.ylabel("reward")
     plt.title(f"q learning, lr={lr}, eta={eta}")

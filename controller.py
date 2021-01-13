@@ -24,7 +24,8 @@ class Controller(object):
                  blocks=None,
                  board=None,
                  eps=0.2,
-                 mouse_move="stay"
+                 mouse_move="stay",
+                 reward="base"
                  ):
         """
         Args:
@@ -48,7 +49,7 @@ class Controller(object):
         # init state
         self.init_state = init_state
         # init Q table
-        self.Q = np.random.randn(total, total, 4) * 1e-3
+        self.Q = np.random.randn(total, total, 4)
         # init Q[final_state] = 0
         self.Q[range(total), range(total)] = 0
         block_index = [pos2index(x, board.shape) for x in blocks]
@@ -56,6 +57,7 @@ class Controller(object):
 
         self.eps = eps
         self.mouse_move = mouse_move
+        self.reward = reward
 
     def q_learning(self, lr=0.01, eta=0.7, max_iter=500, print_msg=True):
         """perform q learning on agent.
@@ -64,10 +66,10 @@ class Controller(object):
             rewards (list [float]): each epsiode reward.
         """
         rewards = []
-        for e in range(max_iter):
+        for e in tqdm(range(max_iter), "learning"):
             # init cat and env agent
             cat = CatAgent(self.Q, self.init_state, self.eps)
-            env = BoardEnv(self.init_state, self.board, self.mouse_move)
+            env = BoardEnv(self.init_state, self.board, self.mouse_move, self.reward)
             reward = 0
             loop = 0
             # loop
@@ -85,7 +87,7 @@ class Controller(object):
             rewards.append(reward)
             if print_msg:
                 print(f"EPOCH: {e}, LOOP: {loop}, REWARD: {reward}")
-
+            self.curve = rewards
         return rewards
 
     def epsiode(self, max_try=10000):
@@ -95,12 +97,12 @@ class Controller(object):
             state_history (list [(x0, y0), (x1, y1)]).
         """
         cat = CatAgent(self.Q, self.init_state, self.eps)
-        env = BoardEnv(self.init_state, self.board, self.mouse_move)
+        env = BoardEnv(self.init_state, self.board, self.mouse_move, self.reward)
         state_history = [env.state]
         tries = 0
 
         with tqdm(total=max_try, desc="searching") as pbar:
-            while not env.is_terminate():
+            while not env.is_terminate() and tries < max_try:
                 action = cat.action()
                 s, _ = env.recv(action)
                 cat.recv(s)

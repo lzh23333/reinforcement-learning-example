@@ -96,17 +96,20 @@ class BoardEnv(object):
         recv: recieve action and return updated state and reward.
     """
 
-    def __init__(self, state, board, mouse_pattern):
+    def __init__(self, state, board, mouse_pattern, reward):
         self.state = state
         self.board = board
         self.mouse = Mouse(index2pos(state[1], self.board.shape), self.board)
         self.mouse_move = mouse_pattern
+        self.reward_pattern = reward
+        self.count = 0
 
     def recv(self, action):
         """
         Args:
             action (int): [0--3].
         """
+        self.count += 1
         cat_pos = index2pos(self.state[0], self.board.shape)
         cat_pos = move_on_board(cat_pos, action, self.board.shape)
         mouse_pos = self.mouse.move(
@@ -117,7 +120,7 @@ class BoardEnv(object):
             pos2index(cat_pos, self.board.shape),
             pos2index(mouse_pos, self.board.shape)
         )
-        return self.state, self.reward()
+        return self.state, self.reward(self.reward_pattern)
 
     def is_terminate(self):
         catch = self.state[0] == self.state[1]
@@ -127,11 +130,21 @@ class BoardEnv(object):
         )
         return catch or block
 
-    def reward(self):
-        if self.state[0] == self.state[1]:
-            return 10
-        elif (self.board[index2pos(self.state[0], self.board.shape)]
-              == Label.block.value):
-            return -10
+    def reward(self, method="basic"):
+        if method == "dist":
+            # reward based on distance
+            cat_pos = index2pos(self.state[0], self.board.shape)
+            if (self.board[index2pos(self.state[0], self.board.shape)]
+                == Label.block.value):
+                return -1000
+            mouse_pos = index2pos(self.state[1], self.board.shape)
+            dist = manhattan(cat_pos, mouse_pos)
+            return 11 - dist - 0.1 * self.count
         else:
-            return -1
+            if self.state[0] == self.state[1]:
+                return 10
+            elif (self.board[index2pos(self.state[0], self.board.shape)]
+                == Label.block.value):
+                return -10
+            else:
+                return -1

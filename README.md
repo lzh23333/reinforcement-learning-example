@@ -114,9 +114,38 @@ optional arguments:
 
 ### 3.3 问题扩展
 
-将网格扩大到$(40,40)$，随机布置50个障碍物，
+将网格扩大到$(40,40)$，随机布置50个障碍物，则该问题下状态数非常之多，利用先前的算法进行实验，发现即使将迭代次数设为500000次，依旧很难收敛，并且训练得到的agent表现非常的差，经常在某个区域不停往返。原因我估计有以下几点：
 
+- 状态数过多，有2560000个状态，考虑四个action，Q table共有12800000个值需要更新
+- 网格过多，agent多次迭代都很难达到成功的状态，反倒是更经常接触障碍物，导致其实际行动更接近于避开障碍物
+- 奖励函数过于简单，不大适合问题复杂度很大的情况
 
+为了解决以上问题，采用修改奖励函数的方法来人为地引入一些先验知识，从而辅助agent更快收敛，具体奖励函数为：
+$$
+reward(p_{cat},p_{mouse})=\begin{cases}
+11-d(p_{cat}, p_{mouse})-0.1t, &p_{cat}\neq p_{block}\\
+-1000, & p_{cat} =p_{block}
+\end{cases}
+$$
+即将奖励函数改为与猫和老鼠之间的距离相关，其中距离采用曼哈顿距离。并且增加了惩罚项$-0.1t$，以激励agent更快找到目标。同时，增加迭代次数到1000000次，保证有足够多的尝试机会。
 
+![](README.assets/example_40x40.png)
 
+下图为同样条件，但是采用原始奖励函数的学习曲线：
 
+![](README.assets/example_40x40_basic.png)
+
+发现该学习曲线完全不对，且运行结果也相当鬼畜。
+
+总的来说，该修正奖励函数下，agent收敛相较快，且效果较好，效果图如下：
+
+![](README.assets/example3.gif)
+
+上述效果可以通过输入
+
+```
+python .\train.py --board_size 40 40 --blocks 50 --max_iter 1000000 --mouse_pattern random --reward dist --dst c_dist.pkl --lr 0.1 --eps 0.3 --eta 0.5
+python visualize.py c_dist.pkl
+```
+
+即可运行。
