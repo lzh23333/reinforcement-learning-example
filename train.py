@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument("--eta", type=float, default=0.7)
     parser.add_argument("--max_iter", type=int, default=500)
     parser.add_argument("--mouse_pattern", type=str,
-                        choices=["stay", "random"])
+                        choices=["stay", "random", "away"])
     parser.add_argument("--dst", type=str,
                         help="controller store path", default="c.pkl")
     return parser.parse_args()

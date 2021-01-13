@@ -35,7 +35,7 @@ class CatAgent(object):
     def recv(self, state):
         self.state = state
 
-    def action(self, forbid=None):
+    def action(self):
         """use Q to find best action.
 
         Args:
@@ -76,9 +76,11 @@ class Mouse(object):
             pos = move_on_board(self.pos, action, self.board.shape)
             if self.board[pos] != Label.block.value:
                 self.pos = pos
-        elif method == "away" and random.random() > 0.5:
-            next_pos = [move_on_board(self.pos, a, self.board.shape) for a in range(4)]
-            next_pos = [x for x in next_pos if self.board[x] != Label.block.value]
+        elif method == "away" and random.random() > 0.7:
+            next_pos = [move_on_board(self.pos, a, self.board.shape)
+                        for a in range(4)]
+            next_pos = [x for x in next_pos
+                        if self.board[x] != Label.block.value and x != cat_pos]
             scores = [manhattan(p, cat_pos) for p in next_pos]
             if scores != []:
                 self.pos = next_pos[np.argmax(scores)]

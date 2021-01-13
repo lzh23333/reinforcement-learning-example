@@ -34,7 +34,7 @@ python example.py --mouse_pattern stay
 
 来运行Q-Learning算法并对结果进行可视化：
 
-![example0-curve](imgs/example0-curve.png)
+![example0-curve](./imgs/example0-curve.png)
 
 如图，可以看出算法在约100轮的时候基本收敛，可视化结果如下：
 
@@ -50,10 +50,73 @@ python example.py --mouse_pattern stay
 
 ```
 python example.py --mouse_pattern random
-python example.py --mouse_pattern away
+python example.py --mouse_pattern away --max_iter 2000
 ```
 
 <center class="2 gif">
-    <img src="./imgs/example1.gif" width = "402" height = "443" alt="图片名称" align=left />
+    <img src="./imgs/example1.gif" width = "400" height = "440" alt="图片名称" align=left />
+    <img src="./imgs/example2.gif" width = "400" height = "440" alt="图片名称" align=right />
 </center>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+可以看出学习策略的有效性。example.py脚本的其它参数如下：
+
+```
+usage: example.py [-h] [--lr LR] [--eps EPS] [--eta ETA] [--max_iter MAX_ITER]
+                  [--mouse_pattern {stay,random,away}] [--ms MS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --lr LR
+  --eps EPS             eps-greedy
+  --eta ETA
+  --max_iter MAX_ITER
+  --mouse_pattern {stay,random,away}
+  --ms MS               animation interval
+```
+
+其中学习率默认为0.05，eps默认为0.2，max_iter默认为500，eta为衰减因子，默认为0.5。
+
+### 3.3 Q learning参数对收敛性的影响
+
+对于3.2中的问题，由于其训练时间较短，且状态也不算少，所以可以用于研究各个参数对Q learning算法的影响。
+
+![](./imgs/lr.png)
+
+可以看出，学习率越高，在该问题下收敛越快，为了更好地对学习曲线进行可视化，采用hanning窗对学习曲线进行平滑。在该问题下，学习率设置过高似乎并不会对收敛有明显影响，只能说是问题过于简单导致的。此外，不同衰减因子对应的学习曲线图如下：
+
+![](README.assets/decay.png)
+
+可以看出衰减因子越小，收敛速度越慢，但是对收敛的影响并没有学习率那么显著。
+
+
+
+### 3.3 问题扩展
+
+将网格扩大到$(40,40)$，随机布置50个障碍物，
+
+
+
+
 

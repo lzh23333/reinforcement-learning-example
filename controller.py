@@ -57,7 +57,7 @@ class Controller(object):
         self.eps = eps
         self.mouse_move = mouse_move
 
-    def q_learning(self, lr=0.01, eta=0.7, max_iter=500):
+    def q_learning(self, lr=0.01, eta=0.7, max_iter=500, print_msg=True):
         """perform q learning on agent.
 
         Returns:
@@ -83,7 +83,8 @@ class Controller(object):
             # update
             self.Q = cat.Q
             rewards.append(reward)
-            print(f"EPOCH: {e}, LOOP: {loop}, REWARD: {reward}")
+            if print_msg:
+                print(f"EPOCH: {e}, LOOP: {loop}, REWARD: {reward}")
 
         return rewards
 
