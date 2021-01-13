@@ -37,9 +37,9 @@ python example.py --mouse_pattern stay
 ![example0-curve](./imgs/example0-curve.png)
 
 如图，可以看出算法在约100轮的时候基本收敛，可视化结果如下：
-
+<div>
 <img src="./imgs/example0.gif" width = "402" height = "443" alt="图片名称" align=center />
-
+</div>
 可以看出猫可以找出最优路径，证明了强化学习在该问题上的有效性。
 
 ### 3.2 老鼠加入移动策略
@@ -52,12 +52,12 @@ python example.py --mouse_pattern stay
 python example.py --mouse_pattern random
 python example.py --mouse_pattern away --max_iter 2000
 ```
-
+<div>
 <center class="2 gif">
     <img src="./imgs/example1.gif" width = "400" height = "440" alt="图片名称" align=left />
     <img src="./imgs/example2.gif" width = "400" height = "440" alt="图片名称" align=right />
 </center>
-
+</div>
 
 
 
